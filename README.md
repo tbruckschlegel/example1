@@ -1,6 +1,6 @@
 # Repository example1 - Windows Console
 
-A interval map example in C++ . 
+A interval map example in C++ with memory and CPU profiler. 
 
 ## Requirements
 

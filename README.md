@@ -1,4 +1,6 @@
-# Repository Template - Windows Console
+# Repository example1 - Windows Console
+
+A interval map example in C++ . 
 
 ## Requirements
 
@@ -13,7 +15,7 @@
 
 **Clone the repo**
 
-```$ git clone https://github.com/tbruckschlegel/template.git```
+```$ git clone https://github.com/tbruckschlegel/example1.git```
 
 
 **Setup dependencies and create the project** 
@@ -25,7 +27,7 @@ $ cd /path/to/repo
 $ ./create_vs_solution.bat
 ```
 
-Open the solution file `./build/template.sln` in Visual Studio 2022 to build
+Open the solution file `./build/example1.sln` in Visual Studio 2022 to build
 Debug or Release targets, build artifacts will be available in `./build/Debug`
 and/or `./build/Release` directory. 
 

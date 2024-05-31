@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15.1)
+cmake_minimum_required(VERSION 3.25.0)
 
 # Only generate Debug and Release configuration types for supported variants
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
@@ -18,13 +18,53 @@ set_property(GLOBAL PROPERTY OS_FOLDERS ON)
 set(GTest_DIR "../third_party/vcpkg/vcpkg_installed/x64-windows-static/share/gtest")
 find_package(GTest CONFIG REQUIRED)
 
+# Allow relative include paths
+include_directories(./ ../)
+
+# OS specific code
+if(OS_MACOSX)
+  set(PLATFORM_SRCS
+    util/win/performance_profiler_win.cpp
+  )
+elseif(WIN32)
+  set(PLATFORM_SRCS
+    util/win/performance_profiler_win.cpp
+  )
+else()
+  message(FATAL_ERROR "OS not defined!")
+endif()
+
+# Function code 
+set(FUNC_SRCS
+  interval_map.hpp
+  )
+
+# Util code 
+set(UTIL_SRCS
+  util/performance_profiler.hpp
+  util/performance_profiler.cpp
+  util/perf_macros.h
+  util/timer.hpp
+  )
+
+# Main entry point
 set(MAIN_SRCS
+  ${FUNC_SRCS}
+  ${UTIL_SRCS}
+  ${PLATFORM_SRCS}
   main.cpp
   main.hpp
   )
 
+# Unit tests
 set(TESTS_SRCS
+  ${FUNC_SRCS}
+  ${UTIL_SRCS}
+  ${PLATFORM_SRCS}
   tests/main.cpp
+  tests/interval_map_unittest.cpp
+  tests/timer_unittest.cpp
+  tests/performance_profiler_unittest.cpp
   )
 
 # Executable targets
@@ -55,7 +95,12 @@ target_compile_options(${MAIN_TARGET} PRIVATE "$<$<CONFIG:DEBUG>:/MTd>")
 target_compile_options(${MAIN_TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/MT>")
 
 # More warnings
-target_compile_options(${TESTS_TARGET} PRIVATE "$<$<CONFIG:DEBUG>:/W4>")
-target_compile_options(${TESTS_TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/W4>")
+target_compile_options(${TESTS_TARGET} PRIVATE "$<$<CONFIG:DEBUG>:/W3>")
+target_compile_options(${TESTS_TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/W3>")
 target_compile_options(${MAIN_TARGET} PRIVATE "$<$<CONFIG:DEBUG>:/W4>")
 target_compile_options(${MAIN_TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/W4>")
+
+# STD C++
+set_property(TARGET ${MAIN_TARGET} PROPERTY CXX_STANDARD 20)
+set_property(TARGET ${TESTS_TARGET} PROPERTY CXX_STANDARD 20)
+

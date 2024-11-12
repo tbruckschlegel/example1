@@ -5,40 +5,42 @@
 */
 
 #include "main.hpp"
-#include <windows.h>
 #include "util/perf_macros.h"
 
-#include <memory>
+using namespace std;
+#define NAIVE_DISANCE_IMPL 1
+#undef NAIVE_DISANCE_IMPL
 
-using interval_map_string_t = interval_map<int, std::string>;
-interval_map_string_t example_interval("X");
-
-// get test range output
-std::string get_test_range(interval_map_string_t& itm,
-    int min_range,
-    int max_range) {
-  std::string res;
-  for (int i = min_range; i < max_range; ++i) {
-    const auto mk = i;
-    const auto mlv = itm[i];
-    res += "[" + std::to_string(mk) + "] -> " + mlv + "\n";
+template<typename It>
+size_t my_distance(It first, It last) {
+  using category = typename std::iterator_traits<It>::iterator_category;
+#ifndef NAIVE_DISANCE_IMPL
+  if constexpr (std::is_same<std::random_access_iterator_tag,
+                    category>::value) {
+    return last - first;
+  } else {
+#endif
+    size_t result = 0;
+    for (; first != last; ++first, ++result) {
+    }
+    return result;
+#ifndef NAIVE_DISANCE_IMPL
   }
-  return res;
+#endif
 }
-
 // main entry point
 int main() {
   std::shared_ptr<performance::PerformanceProfiler> profiler;
   profiler = std::make_shared<performance::PerformanceProfiler>(
       [](const std::string& segment_name, double value,
           const std::string& unit) {
-        static util::Timer<std::chrono::milliseconds> elapsed_time;
+        static util::Timer<std::chrono::nanoseconds> elapsed_time;
         static bool first_time = true;
         static util::StopWatchTimer init_timer;
         if (first_time) {
           first_time = false;
           std::cout << std::right << std::setfill(' ') << std::setw(16)
-                    << "Time offset (ms)" << std::right << std::setfill(' ')
+                    << "Time offset (micro)" << std::right << std::setfill(' ')
                     << std::setw(64) << "Segment" << std::right
                     << std::setfill(' ') << std::setw(16) << "Value"
                     << std::right << std::setfill(' ') << std::setw(16)
@@ -49,31 +51,69 @@ int main() {
           return;
 
         std::cout << std::right << std::setfill(' ') << std::setw(16)
-                  << (elapsed_time.ElapsedTime() + init_timer.ElapsedTime())
-                  << std::right << std::setfill(' ') << std::setw(64)
-                  << segment_name << std::right << std::setfill(' ')
-                  << std::setw(16) << value << std::right << std::setfill(' ')
-                  << std::setw(16) << unit;
+                  << (elapsed_time.ElapsedTime() / 1000) << std::right
+                  << std::setfill(' ') << std::setw(64) << segment_name
+                  << std::right << std::setfill(' ') << std::setw(16) << value
+                  << std::right << std::setfill(' ') << std::setw(16) << unit;
 
         std::cout << std::endl;
+        elapsed_time.Reset();
       });
 
-  LOG_MEM(profiler, GetCurrentProcessId(), "example2.exe");
+  LOG_MEM(profiler, GetCurrentProcessId(), "example1.exe");
 
-  try {
-    {
-      LOG_PERF(profiler, "interval map - assign_list");
-      const auto kStepSize = 10;
-      const auto kTotalRange = 1024 * 1024 * 32;
-      for (int i = -2; i < kTotalRange; i += kStepSize) {
-        example_interval.assign(i, i + kStepSize, "a" + std::to_string(i));
-      }
+  {
+    LOG_PERF(profiler, "my_distance1");
+    size_t x = 0;
+    vector<string> names{ "Jerry", "John", "Frank", "Jerry", "John", "Frank",
+      "Michael" };
+    auto iter_Jerry = find(names.begin(), names.end(), "Jerry");
+    auto iter_Michael = find(names.begin(), names.end(), "Michael");
+    for (int i = 0; i < 100000000; ++i) {
+      x += my_distance(iter_Jerry, iter_Michael) + i;
     }
-
-    // std::cout << get_test_range(example_interval, -10, kTotalRange);
-  } catch (std::exception e) {
-    std::cout << "error happend: " << e.what() << std::endl;
+    cout << x << "\n";
   }
 
-  return getchar();
+  {
+    LOG_PERF(profiler, "my_distance2");
+    size_t x = 0;
+    unordered_map<string, int> names{ { "Jerry", 1 }, { "John", 2 },
+      { "Frank", 3 }, { "Frank2", 4 }, { "Frank3", 5 }, { "Frank4", 6 },
+      { "Frank5", 7 }, { "Michael", 4 } };
+    auto iter_Jerry = names.find("Jerry");
+    auto iter_Michael = names.find("Michael");
+
+    for (int i = 0; i < 100000000; ++i) {
+      x += my_distance(iter_Jerry, iter_Michael) + i;
+    }
+    cout << x << "\n";
+  }
+
+  {
+    LOG_PERF(profiler, "stl distance1");
+    size_t x = 0;
+    vector<string> names{ "Jerry", "John", "Frank", "Jerry", "John", "Frank",
+      "Michael" };
+    auto iter_Jerry = find(names.begin(), names.end(), "Jerry");
+    auto iter_Michael = find(names.begin(), names.end(), "Michael");
+    for (int i = 0; i < 100000000; ++i) {
+      x += std::distance(iter_Jerry, iter_Michael) + i;
+    }
+    cout << x << "\n";
+  }
+
+  {
+    LOG_PERF(profiler, "stl distance2");
+    size_t x = 0;
+    unordered_map<string, int> names{ { "Jerry", 1 }, { "John", 2 },
+      { "Frank", 3 }, { "Frank2", 4 }, { "Frank3", 5 }, { "Frank4", 6 },
+      { "Frank5", 7 }, { "Michael", 4 } };
+    auto iter_Jerry = names.find("Jerry");
+    auto iter_Michael = names.find("Michael");
+    for (int i = 0; i < 100000000; ++i) {
+      x += std::distance(iter_Jerry, iter_Michael) + i;
+    }
+    cout << x << "\n";
+  }
 }

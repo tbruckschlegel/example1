@@ -7,7 +7,7 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 #set(VCPKG_TARGET_TRIPLET x64-windows-mixed)
 
 # Project name.
-project(template)
+project(example1)
 
 # Use folders in the resulting project files.
 set_property(GLOBAL PROPERTY OS_FOLDERS ON)

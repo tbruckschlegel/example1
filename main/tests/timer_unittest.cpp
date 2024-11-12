@@ -15,18 +15,8 @@ TEST(Timer, MustBeGreaterThan2000ms) {
   });
 
   std::this_thread::sleep_for(2s);
-  auto elapsed_time = timer.GetElapsedTimeInMs();
-  EXPECT_TRUE(elapsed_time >= 2000);
-}
-
-TEST(Timer, PrettyPrintNoCallback) {
-  util::ScopedTimer timer("test 2", nullptr);
-
-  std::this_thread::sleep_for(2s);
-  auto elapsed_time = timer.GetElapsedTimeInMs();
-  auto pretty_time = timer.GetPrettyElapsedTime(elapsed_time);
-  GTEST_COUT << pretty_time << std::endl;
-  EXPECT_STREQ(pretty_time.c_str(), "00h00m02s");
+  auto elapsed_time = timer.ElapsedTime();
+  EXPECT_TRUE(elapsed_time >= 2000*1000000.0);
 }
 
 TEST(Timer, StopWatchStart) {
@@ -51,7 +41,7 @@ TEST(Timer, StopWatchResume) {
 TEST(Timer, StopWatchEnd) {
   const auto elapsed_time = stop_watch.ElapsedTime();
   GTEST_COUT << "Time elapsed: " << elapsed_time << std::endl;
-  EXPECT_TRUE(elapsed_time >= 3000 && elapsed_time <= 3100);
+  EXPECT_TRUE(elapsed_time >= 3000 * 1000000.0 && elapsed_time <= 3100 * 1000000.0);
 }
 
 TEST(Timer, Reset) {
@@ -63,14 +53,14 @@ TEST(Timer, Reset) {
 TEST(Timer, GetElapsedTimeAfterReset) {
   const auto elapsed_time = stop_watch.ElapsedTime();
   GTEST_COUT << "Time elapsed: " << elapsed_time << std::endl;
-  EXPECT_TRUE(elapsed_time >= 3000 && elapsed_time <= 3100);
+  EXPECT_TRUE(elapsed_time >= 3000 * 1000000.0 && elapsed_time <= 3100 * 1000000.0);
   std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 TEST(Timer, GetElapsedTimeAfterReset2) {
   const auto elapsed_time = stop_watch.ElapsedTime();
   GTEST_COUT << "Time elapsed: " << elapsed_time << std::endl;
-  EXPECT_TRUE(elapsed_time >= 4000 && elapsed_time <= 4100);
+  EXPECT_TRUE(elapsed_time >= 4000 * 1000000.0 && elapsed_time <= 4100*1000000.0);
 }
 
 TEST(Timer, GetElapsedTimeAfterPause) {
@@ -82,7 +72,7 @@ TEST(Timer, GetElapsedTimeAfterPause) {
   // shouldn't be taken in account.
   const auto elapsed_time = stop_watch.ElapsedTime();
   GTEST_COUT << "Time elapsed: " << elapsed_time << std::endl;
-  EXPECT_TRUE(elapsed_time >= 4000 && elapsed_time <= 4100);
+  EXPECT_TRUE(elapsed_time >= 4000 * 1000000.0 && elapsed_time <= 4100 * 1000000.0);
 }
 
 TEST(Timer, ResetAndCheckFor5Secs) {
@@ -92,13 +82,14 @@ TEST(Timer, ResetAndCheckFor5Secs) {
   for (double i = 0; i < 5000; i += 1000) {
     const auto elapsed_time = stop_watch.ElapsedTime();
     GTEST_COUT << "Time elapsed: " << elapsed_time << std::endl;
-    EXPECT_TRUE(elapsed_time >= i && elapsed_time <= i + 100);
+    EXPECT_TRUE(
+        elapsed_time >= i && elapsed_time <= i * 1000000.0 + 100 * 1000000.0);
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 
   const auto elapsed_time = stop_watch.ElapsedTime();
   GTEST_COUT << "Time elapsed: " << elapsed_time << std::endl;
-  EXPECT_TRUE(elapsed_time >= 5000 && elapsed_time <= 5100);
+  EXPECT_TRUE(elapsed_time >= 5000 * 1000000.0 && elapsed_time <= 5100 * 1000000.0);
 }
 
 TEST(Timer, StopWatchStop) {

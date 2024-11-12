@@ -36,7 +36,6 @@ endif()
 
 # Function code 
 set(FUNC_SRCS
-  interval_map.hpp
   )
 
 # Util code 
@@ -62,7 +61,6 @@ set(TESTS_SRCS
   ${UTIL_SRCS}
   ${PLATFORM_SRCS}
   tests/main.cpp
-  tests/interval_map_unittest.cpp
   tests/timer_unittest.cpp
   tests/performance_profiler_unittest.cpp
   )

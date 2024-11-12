@@ -1,6 +1,7 @@
 # Repository example1 - Windows Console
 
-A interval map example in C++ with memory and CPU profiler. 
+A performance test of a naive std::distance function implementation vs an advanced one using constexpr to avoud branching at runtime. It also compares against the STL implementation.
+ 
 
 ## Requirements
 

@@ -10,7 +10,7 @@ TEST(PerformanceProfiler, Start) {
   test = std::make_unique<performance::PerformanceProfiler>(
       [](const std::string& segment_name, double value,
           const std::string& unit) {
-        static util::Timer<std::chrono::milliseconds> elapsed_time;
+        static util::Timer<std::chrono::nanoseconds> elapsed_time;
         static bool first_time = true;
         static util::StopWatchTimer init_timer;
         if (first_time) {

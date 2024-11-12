@@ -15,7 +15,7 @@
 namespace performance {
 using profiler_output_handler_t = std::function<
     void(const std::string&, double, const std::string& unit)>;
-using timer_precision_t = util::Timer<std::chrono::milliseconds>;
+using timer_precision_t = util::Timer<std::chrono::nanoseconds>;
 
 namespace detail {
 struct ProcessMemoryData {
@@ -27,7 +27,7 @@ struct ProcessMemoryData {
 
 /// Units used by the profiler.
 enum class ProfilerUnit {
-  kMS,      /// milliseconds
+  kNS,      /// nanoseconds
   kMB,      /// megabytes
   kComment  /// comment
 };
@@ -41,7 +41,7 @@ struct ProfilerUnitString final {
 
   operator std::string() const {
     static std::unordered_map<ProfilerUnit, std::string> strings{
-      { ProfilerUnit::kMS, "ms" }, { ProfilerUnit::kMB, "MB" },
+      { ProfilerUnit::kNS, "ns" }, { ProfilerUnit::kMB, "MB" },
       { ProfilerUnit::kComment, "Comment" }
     };
     if (const auto&& it = std::find_if(strings.begin(), strings.end(),

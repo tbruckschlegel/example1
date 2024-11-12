@@ -18,7 +18,7 @@ void PerformanceProfiler::Shutdown() {
   std::lock_guard lock(mutex_);
   for (auto&& [segment_name, timer] : running_)
     output_handler_(segment_name, timer.ElapsedTime(),
-        ProfilerUnitString(ProfilerUnit::kMS));
+        ProfilerUnitString(ProfilerUnit::kNS));
 
   for (auto&& [pid, pmd] : processes_)
     OutputMemoryUsage(pid, pmd);
@@ -38,7 +38,7 @@ void PerformanceProfiler::End(const std::string& segment_name) {
 
   const auto& timer = it->second;
   output_handler_(
-      segment_name, timer.ElapsedTime(), ProfilerUnitString(ProfilerUnit::kMS));
+      segment_name, timer.ElapsedTime(), ProfilerUnitString(ProfilerUnit::kNS));
   running_.erase(it);
 
   lock.unlock();

@@ -14,12 +14,12 @@
 #include <functional>
 
 namespace util {
-typedef std::function<void(const std::string& label, double time_in_ms)>
+typedef std::function<void(const std::string& label, double time)>
     timer_callback_t;
 
 /**
  * \brief A general timer object to measure things performance based on a
- * std::chrono time reference, such as std::chrono::milliseconds.
+ * std::chrono time reference, such as std::chrono::nanoseconds.
  **/
 template<typename T>
 class Timer {
@@ -28,10 +28,14 @@ public:
     start_ = std::chrono::high_resolution_clock::now();
   }
 
+  void Reset() {
+    start_ = std::chrono::high_resolution_clock::now();
+  }
+
   double ElapsedTime() const {
     const auto now = std::chrono::high_resolution_clock::now();
-    const auto ms = std::chrono::duration_cast<T>(now - start_);
-    return double(ms.count());
+    const auto elapsed = std::chrono::duration_cast<T>(now - start_);
+    return double(elapsed.count());
   }
 
 protected:
@@ -39,10 +43,10 @@ protected:
 };
 
 /**
- * \brief A scoped timer using std::chrono::microseconds to measure the time
+ * \brief A scoped timer using std::chrono::nanoseconds to measure the time
  * taken in a given code block.
  **/
-class ScopedTimer : public Timer<std::chrono::microseconds> {
+class ScopedTimer : public Timer<std::chrono::nanoseconds> {
 public:
   ScopedTimer() = delete;
 
@@ -64,43 +68,17 @@ public:
    * is terminating or whenever needed)
    **/
   ~ScopedTimer() {
-    const auto elapsed_ms = ElapsedTime() / 1000.0;
     if (callback_ != nullptr)
-      callback_(id_, elapsed_ms);
+      callback_(id_, ElapsedTime());
   }
 
-  /**
-   * \brief Get the elapsed time since the start of this timer.
-   * \return the elapsed time in milliseconds. The timer goes on after this call
-   * and will continue till the instance goes out of scope.
-   **/
-  double GetElapsedTimeInMs() const {
-    return ElapsedTime() / 1000.0;
-  }
-
-  /**
-   * \brief Return a pretty string formatted as 00h00m00s for a given elapsed
-   * time.
-   * \param[in] elapsed_time the elapsed time in ms (call GetElapsedTimeInMs()
-   * to get the a ScopedTimer elapsed time.
-   * \return a string with the elapsed time in pretty format.
-   **/
-  static std::string GetPrettyElapsedTime(double elapsed_time) {
-    const auto execution_time = elapsed_time / 1000.0;
-    const auto hours = (static_cast<int>(execution_time / 60 / 60)),
-               minutes = (static_cast<int>(execution_time / 60) % 60),
-               seconds = static_cast<int>(execution_time) % 60;
-    const std::string time = std::format(
-        "{:02d}h{:02d}m{:02d}s", hours, minutes, seconds);
-    return time;
-  }
 
 private:
   std::string id_;
   timer_callback_t callback_;
 };
 
-class StopWatchTimer : public Timer<std::chrono::milliseconds> {
+class StopWatchTimer : public Timer<std::chrono::nanoseconds> {
 public:
   explicit StopWatchTimer(bool start = false) {
     if (start)
@@ -117,9 +95,9 @@ public:
       return;
 
     const auto now = std::chrono::high_resolution_clock::now();
-    const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+    const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
         now - last_check_);
-    sum_ += ms;
+    sum_ += elapsed;
     paused_ = true;
   }
 
@@ -143,10 +121,10 @@ public:
   double ElapsedTime() const {
     if (started_ && !paused_) {
       const auto now = std::chrono::high_resolution_clock::now();
-      const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+      const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
           now - last_check_);
       last_check_ = now;
-      sum_ += ms;
+      sum_ += elapsed;
     }
 
     return double(sum_.count());
@@ -161,6 +139,6 @@ private:
   bool paused_ = false;
   mutable std::chrono::time_point<std::chrono::high_resolution_clock>
       last_check_;
-  mutable std::chrono::duration<double, std::milli> sum_{};
+  mutable std::chrono::duration<double, std::nano> sum_{};
 };
 }  // namespace util

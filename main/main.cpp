@@ -8,9 +8,13 @@
 #include "util/perf_macros.h"
 
 using namespace std;
+
 #define NAIVE_DISANCE_IMPL 1
+
+// comment this line out, to enable the naive impl.
 #undef NAIVE_DISANCE_IMPL
 
+// iter distance() impl
 template<typename It>
 size_t my_distance(It first, It last) {
   using category = typename std::iterator_traits<It>::iterator_category;
@@ -28,6 +32,7 @@ size_t my_distance(It first, It last) {
   }
 #endif
 }
+
 // main entry point
 int main() {
   std::shared_ptr<performance::PerformanceProfiler> profiler;

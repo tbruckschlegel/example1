@@ -1,6 +1,6 @@
 # Repository example1 - Windows Console
 
-A performance test of a naive std::distance function implementation vs an advanced one using constexpr to avoud branching at runtime. It also compares against the STL implementation.
+A performance test of a naive std::distance function implementation vs an advanced one using constexpr to avoid branching at runtime. It also compares perfromance against the STL implementation.
  
 
 ## Requirements

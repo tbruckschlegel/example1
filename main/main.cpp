@@ -11,7 +11,7 @@ using namespace std;
 
 #define NAIVE_DISTANCE_IMPL 1
 
-// comment this line out, to enable the naive impl.
+// comment this line out, to disable the naive impl.
 #undef NAIVE_DISTANCE_IMPL
 
 // iter distance() impl

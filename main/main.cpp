@@ -9,16 +9,16 @@
 
 using namespace std;
 
-#define NAIVE_DISANCE_IMPL 1
+#define NAIVE_DISTANCE_IMPL 1
 
 // comment this line out, to enable the naive impl.
-#undef NAIVE_DISANCE_IMPL
+#undef NAIVE_DISTANCE_IMPL
 
 // iter distance() impl
 template<typename It>
 size_t my_distance(It first, It last) {
   using category = typename std::iterator_traits<It>::iterator_category;
-#ifndef NAIVE_DISANCE_IMPL
+#ifndef NAIVE_DISTANCE_IMPL
   if constexpr (std::is_same<std::random_access_iterator_tag,
                     category>::value) {
     return last - first;
@@ -28,7 +28,7 @@ size_t my_distance(It first, It last) {
     for (; first != last; ++first, ++result) {
     }
     return result;
-#ifndef NAIVE_DISANCE_IMPL
+#ifndef NAIVE_DISTANCE_IMPL
   }
 #endif
 }
